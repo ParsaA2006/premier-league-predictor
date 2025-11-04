@@ -1,0 +1,175 @@
+.season-predictor {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 2rem;
+  border-radius: 10px;
+  color: #333;
+}
+
+.season-predictor h1 {
+  color: #667eea;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.subtitle {
+  text-align: center;
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+.championship-section {
+  margin-bottom: 2rem;
+}
+
+.champion-card {
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  padding: 2rem;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.champion-card h2 {
+  color: #333;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.champion-name {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.relegation-section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: #fff3cd;
+  border-radius: 10px;
+  border-left: 4px solid #ffc107;
+}
+
+.relegation-section h2 {
+  color: #856404;
+  margin-bottom: 1rem;
+}
+
+.relegated-teams {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.relegated-team {
+  padding: 0.75rem 1.5rem;
+  background: #fff;
+  border-radius: 5px;
+  font-weight: 600;
+  color: #856404;
+  border: 2px solid #ffc107;
+}
+
+.standings-table {
+  overflow-x: auto;
+}
+
+.standings-table h2 {
+  color: #667eea;
+  margin-bottom: 1rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+thead {
+  background: #667eea;
+  color: white;
+}
+
+th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+}
+
+tbody tr {
+  border-bottom: 1px solid #e0e0e0;
+  transition: background 0.2s;
+}
+
+tbody tr:hover {
+  background: #f5f5f5;
+}
+
+tbody tr.champions-league {
+  background: #e8f5e9;
+}
+
+tbody tr.europa-league {
+  background: #fff3e0;
+}
+
+tbody tr.relegation {
+  background: #ffebee;
+}
+
+td {
+  padding: 1rem;
+}
+
+.team-name {
+  font-weight: 600;
+}
+
+.predicted-points {
+  font-weight: 600;
+  color: #667eea;
+}
+
+.position-up {
+  color: #4caf50;
+  font-weight: 600;
+}
+
+.position-down {
+  color: #f44336;
+  font-weight: 600;
+}
+
+.position-same {
+  color: #666;
+}
+
+.loading,
+.error,
+.no-data {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.error {
+  color: #f44336;
+}
+
+@media (max-width: 768px) {
+  .champion-name {
+    font-size: 1.5rem;
+  }
+
+  table {
+    font-size: 0.9rem;
+  }
+
+  th,
+  td {
+    padding: 0.5rem;
+  }
+}
+
