@@ -17,24 +17,44 @@ class DataFetcher:
         }
         self.competition_id = "PL"  # Premier League
     
-    async def _make_request(self, endpoint: str) -> Optional[Dict]:
-        """Make API request"""
+    async def _make_request(self, endpoint: str, retries: int = 3) -> Optional[Dict]:
+        """Make API request with retry logic and timeout"""
         url = f"{self.base_url}/{endpoint}"
-        try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url, headers=self.headers) as response:
-                    if response.status == 200:
-                        return await response.json()
-                    elif response.status == 429:
-                        print("Rate limit exceeded. Waiting...")
-                        await asyncio.sleep(60)
-                        return await self._make_request(endpoint)
-                    else:
-                        print(f"API request failed: {response.status}")
-                        return None
-        except Exception as e:
-            print(f"Error fetching data: {e}")
-            return None
+        timeout = aiohttp.ClientTimeout(total=10)  # 10 second timeout
+        
+        for attempt in range(retries):
+            try:
+                async with aiohttp.ClientSession(timeout=timeout) as session:
+                    async with session.get(url, headers=self.headers) as response:
+                        if response.status == 200:
+                            return await response.json()
+                        elif response.status == 429:
+                            wait_time = 60 * (attempt + 1)  # Exponential backoff
+                            print(f"Rate limit exceeded. Waiting {wait_time}s...")
+                            await asyncio.sleep(wait_time)
+                            continue  # Retry
+                        elif response.status == 403:
+                            print(f"API access forbidden (403). Check API key.")
+                            return None
+                        else:
+                            print(f"API request failed: {response.status}")
+                            if attempt < retries - 1:
+                                await asyncio.sleep(2 ** attempt)  # Exponential backoff
+                                continue
+                            return None
+            except asyncio.TimeoutError:
+                print(f"Request timeout (attempt {attempt + 1}/{retries})")
+                if attempt < retries - 1:
+                    await asyncio.sleep(2 ** attempt)
+                    continue
+                return None
+            except Exception as e:
+                print(f"Error fetching data (attempt {attempt + 1}/{retries}): {e}")
+                if attempt < retries - 1:
+                    await asyncio.sleep(2 ** attempt)
+                    continue
+                return None
+        return None
     
     async def fetch_teams(self) -> List[Dict]:
         """Fetch all Premier League teams"""

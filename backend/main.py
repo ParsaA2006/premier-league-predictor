@@ -151,9 +151,11 @@ async def get_matches():
         # If no matches from API, return empty list (frontend handles this gracefully)
         if not matches:
             print("No matches available from API")
+            return []  # Return empty list instead of None
         return matches
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"Error fetching matches: {e}")
+        return []  # Return empty list on error instead of raising exception
 
 
 @app.get("/api/predict/match/{home_team}/{away_team}", response_model=MatchPrediction)
