@@ -25,10 +25,10 @@ dmypy.json
 .env
 .env.local
 *.log
-models/trained/*.pkl
-!models/trained/.gitkeep
 .git
 .gitignore
 README.md
 *.md
+Dockerfile
+.dockerignore
 
