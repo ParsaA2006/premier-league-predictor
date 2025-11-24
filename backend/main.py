@@ -181,9 +181,20 @@ async def predict_match(home_team: str, away_team: str):
 async def predict_season():
     """Predict the entire season standings"""
     try:
-        prediction = await season_predictor.predict_season()
+        # Add timeout to prevent hanging (30 seconds max)
+        prediction = await asyncio.wait_for(
+            season_predictor.predict_season(),
+            timeout=30.0
+        )
         return prediction
+    except asyncio.TimeoutError:
+        print("Season prediction timed out")
+        raise HTTPException(
+            status_code=504, 
+            detail="Season prediction timed out. Please try again in a moment."
+        )
     except Exception as e:
+        print(f"Error in season prediction: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 

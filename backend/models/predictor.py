@@ -239,8 +239,10 @@ class SeasonPredictor:
             }
         
         # Get current season data for ALL teams
+        # Use database stats first (faster), only fetch from API if missing
         standings = []
         for team in teams:
+            # Try database first (much faster)
             stats = self.db.get_team_stats(team['name'])
             
             # If no stats in database, try to fetch from API
