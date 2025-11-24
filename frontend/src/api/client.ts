@@ -3,7 +3,7 @@ import axios from 'axios'
 // Use environment variable in production, fallback to localhost for development
 const API_BASE_URL = import.meta.env.VITE_API_URL || 
   (import.meta.env.PROD 
-    ? 'https://your-backend-url.railway.app'  // Update this with your Railway backend URL
+    ? 'https://premier-league-predictor-production-5f2b.up.railway.app'  // Production backend URL
     : 'http://localhost:8000')
 
 export const apiClient = axios.create({
