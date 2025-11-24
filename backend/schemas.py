@@ -54,3 +54,14 @@ class TeamStats(BaseModel):
     home_record: dict
     away_record: dict
 
+
+class Player(BaseModel):
+    id: int
+    name: str
+    position: Optional[str] = None
+    dateOfBirth: Optional[str] = None
+    nationality: Optional[str] = None
+    role: Optional[str] = None
+    shirtNumber: Optional[int] = None
+    photo: Optional[str] = None
+

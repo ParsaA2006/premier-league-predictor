@@ -13,7 +13,8 @@ from sklearn.metrics import accuracy_score, classification_report
 import xgboost as xgb
 
 # Add parent directory to path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(backend_dir)
 
 from data.data_fetcher import DataFetcher
 from data.feature_engineering import FeatureEngineer
@@ -177,8 +178,10 @@ async def train_models():
           target_names=['HOME_WIN', 'DRAW', 'AWAY_WIN']))
     
     # Save outcome model
-    os.makedirs("models/trained", exist_ok=True)
-    with open("models/trained/match_predictor.pkl", "wb") as f:
+    models_dir = os.path.join(backend_dir, "models", "trained")
+    os.makedirs(models_dir, exist_ok=True)
+    match_model_path = os.path.join(models_dir, "match_predictor.pkl")
+    with open(match_model_path, "wb") as f:
         pickle.dump(model, f)
     print("Saved outcome prediction model")
     
@@ -206,12 +209,13 @@ async def train_models():
     print(f"Score prediction MAE: {mae:.2f} goals")
     
     # Save score model
-    with open("models/trained/score_predictor.pkl", "wb") as f:
+    score_model_path = os.path.join(models_dir, "score_predictor.pkl")
+    with open(score_model_path, "wb") as f:
         pickle.dump(score_model, f)
     print("Saved score prediction model")
     
     print("\nTraining completed successfully!")
-    print("Models saved to models/trained/")
+    print(f"Models saved to {models_dir}/")
 
 
 if __name__ == "__main__":

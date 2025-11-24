@@ -45,6 +45,14 @@ const Navbar = () => {
               Team Stats
             </Link>
           </li>
+          <li>
+            <Link 
+              to="/player-stats" 
+              className={isActive('/player-stats') ? 'active' : ''}
+            >
+              Players
+            </Link>
+          </li>
         </ul>
       </div>
     </nav>

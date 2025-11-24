@@ -1,6 +1,10 @@
 import axios from 'axios'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+// Use environment variable in production, fallback to localhost for development
+const API_BASE_URL = import.meta.env.VITE_API_URL || 
+  (import.meta.env.PROD 
+    ? 'https://your-backend-url.railway.app'  // Update this with your Railway backend URL
+    : 'http://localhost:8000')
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -80,5 +84,21 @@ export const api = {
     const response = await apiClient.get(`/api/stats/${encodeURIComponent(team)}`)
     return response.data
   },
+
+  getTeamPlayers: async (team: string): Promise<Player[]> => {
+    const response = await apiClient.get(`/api/players/${encodeURIComponent(team)}`)
+    return response.data
+  },
+}
+
+export interface Player {
+  id: number
+  name: string
+  position?: string
+  dateOfBirth?: string
+  nationality?: string
+  role?: string
+  shirtNumber?: number
+  photo?: string
 }
 

@@ -1,0 +1,210 @@
+.player-stats {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 2rem;
+  border-radius: 15px;
+  color: #333;
+  max-width: 1200px;
+  margin: 0 auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+.player-stats h1 {
+  color: #667eea;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.subtitle {
+  text-align: center;
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+.team-selector-section {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.team-selector-section label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.team-select {
+  width: 100%;
+  max-width: 400px;
+  padding: 0.75rem;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+
+.team-select:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.players-container {
+  margin-top: 2rem;
+}
+
+.players-container h2 {
+  color: #667eea;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.players-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.position-group {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 1.5rem;
+}
+
+.position-header {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 1rem;
+  padding-left: 1rem;
+  border-left: 4px solid;
+}
+
+.players-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.player-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+  text-align: center;
+}
+
+.player-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.player-photo-container {
+  position: relative;
+  margin-bottom: 0.75rem;
+  display: flex;
+  justify-content: center;
+}
+
+.player-photo {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #667eea;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.shirt-number {
+  position: absolute;
+  top: -5px;
+  right: calc(50% - 80px);
+  background: #667eea;
+  color: white;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.9rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.player-info {
+  margin-top: 0.5rem;
+}
+
+.player-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #333;
+  margin: 0.5rem 0;
+}
+
+.player-position {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0.25rem 0;
+}
+
+.player-nationality {
+  font-size: 0.8rem;
+  color: #666;
+  margin: 0.25rem 0;
+}
+
+.player-age {
+  font-size: 0.8rem;
+  color: #999;
+  margin: 0.25rem 0;
+}
+
+.captain-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: #333;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-top: 0.5rem;
+  box-shadow: 0 2px 5px rgba(255, 215, 0, 0.3);
+}
+
+.no-players {
+  text-align: center;
+  padding: 2rem;
+  color: #999;
+  font-size: 1.1rem;
+}
+
+.select-team-prompt {
+  text-align: center;
+  padding: 3rem;
+  color: #999;
+  font-size: 1.2rem;
+}
+
+@media (max-width: 768px) {
+  .players-list {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
+  }
+
+  .player-photo {
+    width: 100px;
+    height: 100px;
+  }
+}
+

@@ -7,8 +7,13 @@ from datetime import datetime
 class Database:
     """SQLite database for storing teams, matches, and statistics"""
     
-    def __init__(self, db_path: str = "premier_league.db"):
-        self.db_path = db_path
+    def __init__(self, db_path: str = None):
+        # Use absolute path in backend directory
+        if db_path is None:
+            backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            self.db_path = os.path.join(backend_dir, "premier_league.db")
+        else:
+            self.db_path = db_path
         self.init_db()
     
     def get_connection(self):
@@ -141,16 +146,52 @@ class Database:
         conn.close()
     
     def get_team_stats(self, team_name: str) -> Optional[Dict]:
-        """Get team statistics"""
+        """Get team statistics with fuzzy name matching"""
         conn = self.get_connection()
         cursor = conn.cursor()
         
+        # Try multiple name variations
+        name_variations = [
+            team_name,  # Exact match
+            team_name + " FC",  # Add FC
+            team_name.replace(" FC", ""),  # Remove FC if present
+            team_name.replace("United", "Utd"),  # United -> Utd
+            team_name.replace("Utd", "United"),  # Utd -> United
+        ]
+        
+        # Also try case-insensitive matches
+        for name_var in name_variations:
+            cursor.execute("""
+                SELECT matches_played, wins, draws, losses, goals_for, 
+                       goals_against, goal_diff, points, position, form
+                FROM team_stats
+                WHERE LOWER(team_name) = LOWER(?)
+            """, (name_var,))
+            
+            row = cursor.fetchone()
+            if row:
+                conn.close()
+                return {
+                    'matches_played': row[0],
+                    'wins': row[1],
+                    'draws': row[2],
+                    'losses': row[3],
+                    'goals_for': row[4],
+                    'goals_against': row[5],
+                    'goal_diff': row[6],
+                    'points': row[7],
+                    'position': row[8],
+                    'form': row[9]
+                }
+        
+        # If no exact match, try to find by partial match
         cursor.execute("""
             SELECT matches_played, wins, draws, losses, goals_for, 
                    goals_against, goal_diff, points, position, form
             FROM team_stats
-            WHERE team_name = ?
-        """, (team_name,))
+            WHERE LOWER(team_name) LIKE LOWER(?)
+               OR LOWER(team_name) LIKE LOWER(?)
+        """, (f"%{team_name}%", f"%{team_name.replace(' FC', '')}%"))
         
         row = cursor.fetchone()
         conn.close()
