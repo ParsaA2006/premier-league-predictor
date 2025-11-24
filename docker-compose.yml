@@ -13,7 +13,7 @@ services:
       - PORT=8000
     volumes:
       - ./backend:/app
-      - backend-data:/app/premier_league.db
+      - backend-data:/app/database
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]

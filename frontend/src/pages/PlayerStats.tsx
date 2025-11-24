@@ -163,7 +163,12 @@ const PlayerStats = () => {
       )}
 
       {players && players.length === 0 && selectedTeam && !isLoading && (
-        <div className="no-players">No player data available for {selectedTeam}</div>
+        <div className="no-players">
+          <p>No player data available for {selectedTeam}</p>
+          <p style={{ fontSize: '0.9em', color: '#666', marginTop: '10px' }}>
+            This may be due to API rate limits. Please try again in a few minutes, or try a different team.
+          </p>
+        </div>
       )}
 
       {!selectedTeam && (

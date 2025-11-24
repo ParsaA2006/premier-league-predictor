@@ -53,9 +53,15 @@ class MatchPredictor:
         if features is None:
             return await self._simple_predict(home_team, away_team)
         
-        # Predict outcome
-        outcome_probs = self.model.predict_proba([features])[0]
-        outcome_pred = self.model.predict([features])[0]
+        # Check if feature count matches model (handle shape mismatch)
+        try:
+            # Predict outcome
+            outcome_probs = self.model.predict_proba([features])[0]
+            outcome_pred = self.model.predict([features])[0]
+        except (ValueError, Exception) as e:
+            # If feature shape mismatch or any error, use simple prediction
+            print(f"Model prediction error: {e}. Using simple prediction.")
+            return await self._simple_predict(home_team, away_team)
         
         # Map prediction to result
         result_map = {0: "HOME_WIN", 1: "DRAW", 2: "AWAY_WIN"}
@@ -85,25 +91,37 @@ class MatchPredictor:
     
     async def _simple_predict(self, home_team: str, away_team: str):
         """Simple prediction based on team stats when model not available"""
-        # Try to fetch stats if not in database
+        # Try to fetch stats if not in database (with timeout)
         from data.data_fetcher import DataFetcher
         data_fetcher = DataFetcher()
         
         home_stats = self.db.get_team_stats(home_team)
         if not home_stats:
-            # Try to fetch from API
-            stats = await data_fetcher.fetch_team_stats(home_team)
-            if stats:
-                self.db.save_team_stats(home_team, stats)
-                home_stats = self.db.get_team_stats(home_team)
+            # Try to fetch from API with timeout
+            try:
+                stats = await asyncio.wait_for(
+                    data_fetcher.fetch_team_stats(home_team),
+                    timeout=5.0
+                )
+                if stats:
+                    self.db.save_team_stats(home_team, stats)
+                    home_stats = self.db.get_team_stats(home_team)
+            except (asyncio.TimeoutError, Exception) as e:
+                print(f"Could not fetch stats for {home_team}: {e}")
         
         away_stats = self.db.get_team_stats(away_team)
         if not away_stats:
-            # Try to fetch from API
-            stats = await data_fetcher.fetch_team_stats(away_team)
-            if stats:
-                self.db.save_team_stats(away_team, stats)
-                away_stats = self.db.get_team_stats(away_team)
+            # Try to fetch from API with timeout
+            try:
+                stats = await asyncio.wait_for(
+                    data_fetcher.fetch_team_stats(away_team),
+                    timeout=5.0
+                )
+                if stats:
+                    self.db.save_team_stats(away_team, stats)
+                    away_stats = self.db.get_team_stats(away_team)
+            except (asyncio.TimeoutError, Exception) as e:
+                print(f"Could not fetch stats for {away_team}: {e}")
         
         if not home_stats or not away_stats:
             # Default prediction

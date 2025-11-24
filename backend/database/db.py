@@ -275,4 +275,142 @@ class Database:
         
         conn.close()
         return matches
+    
+    def save_team_players(self, team_name: str, players: List[Dict]):
+        """Save team players to database"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        # Create players table if it doesn't exist
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS team_players (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                team_name TEXT NOT NULL,
+                player_id INTEGER,
+                player_name TEXT NOT NULL,
+                position TEXT,
+                date_of_birth TEXT,
+                nationality TEXT,
+                role TEXT,
+                shirt_number INTEGER,
+                photo TEXT,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        
+        # Delete old players for this team
+        cursor.execute("DELETE FROM team_players WHERE team_name = ?", (team_name,))
+        
+        # Insert new players
+        for player in players:
+            cursor.execute("""
+                INSERT INTO team_players 
+                (team_name, player_id, player_name, position, date_of_birth, 
+                 nationality, role, shirt_number, photo, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                team_name,
+                player.get('id'),
+                player.get('name'),
+                player.get('position'),
+                player.get('dateOfBirth'),
+                player.get('nationality'),
+                player.get('role'),
+                player.get('shirtNumber'),
+                player.get('photo'),
+                datetime.now()
+            ))
+        
+        conn.commit()
+        conn.close()
+    
+    def get_team_players(self, team_name: str) -> List[Dict]:
+        """Get team players from database"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        # Try exact match first
+        cursor.execute("""
+            SELECT player_id, player_name, position, date_of_birth, 
+                   nationality, role, shirt_number, photo
+            FROM team_players 
+            WHERE team_name = ?
+            ORDER BY 
+                CASE position
+                    WHEN 'Goalkeeper' THEN 1
+                    WHEN 'Defence' THEN 2
+                    WHEN 'Defender' THEN 2
+                    WHEN 'Midfield' THEN 3
+                    WHEN 'Midfielder' THEN 3
+                    WHEN 'Offence' THEN 4
+                    WHEN 'Attacker' THEN 4
+                    WHEN 'Forward' THEN 4
+                    ELSE 5
+                END,
+                shirt_number
+        """, (team_name,))
+        
+        rows = cursor.fetchall()
+        if rows:
+            players = []
+            for row in rows:
+                players.append({
+                    'id': row[0],
+                    'name': row[1],
+                    'position': row[2],
+                    'dateOfBirth': row[3],
+                    'nationality': row[4],
+                    'role': row[5],
+                    'shirtNumber': row[6],
+                    'photo': row[7]
+                })
+            conn.close()
+            return players
+        
+        # Try fuzzy matching
+        normalized_input = team_name.lower().replace(" fc", "").strip()
+        cursor.execute("SELECT DISTINCT team_name FROM team_players")
+        all_teams = cursor.fetchall()
+        
+        for (db_team_name,) in all_teams:
+            normalized_db = db_team_name.lower().replace(" fc", "").strip()
+            if normalized_input == normalized_db or normalized_input in normalized_db or normalized_db in normalized_input:
+                cursor.execute("""
+                    SELECT player_id, player_name, position, date_of_birth, 
+                           nationality, role, shirt_number, photo
+                    FROM team_players 
+                    WHERE team_name = ?
+                    ORDER BY 
+                        CASE position
+                            WHEN 'Goalkeeper' THEN 1
+                            WHEN 'Defence' THEN 2
+                            WHEN 'Defender' THEN 2
+                            WHEN 'Midfield' THEN 3
+                            WHEN 'Midfielder' THEN 3
+                            WHEN 'Offence' THEN 4
+                            WHEN 'Attacker' THEN 4
+                            WHEN 'Forward' THEN 4
+                            ELSE 5
+                        END,
+                        shirt_number
+                """, (db_team_name,))
+                rows = cursor.fetchall()
+                if rows:
+                    players = []
+                    for row in rows:
+                        players.append({
+                            'id': row[0],
+                            'name': row[1],
+                            'position': row[2],
+                            'dateOfBirth': row[3],
+                            'nationality': row[4],
+                            'role': row[5],
+                            'shirtNumber': row[6],
+                            'photo': row[7]
+                        })
+                    conn.close()
+                    return players
+        
+        conn.close()
+        return []
 

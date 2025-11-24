@@ -29,10 +29,9 @@ class DataFetcher:
                         if response.status == 200:
                             return await response.json()
                         elif response.status == 429:
-                            wait_time = 60 * (attempt + 1)  # Exponential backoff
-                            print(f"Rate limit exceeded. Waiting {wait_time}s...")
-                            await asyncio.sleep(wait_time)
-                            continue  # Retry
+                            # Rate limited - return None immediately instead of waiting
+                            print(f"Rate limit exceeded for {endpoint}. Returning cached data if available.")
+                            return None  # Don't wait, just return None so we can use cached data
                         elif response.status == 403:
                             print(f"API access forbidden (403). Check API key.")
                             return None

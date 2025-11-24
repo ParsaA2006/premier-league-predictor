@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 from typing import Optional, List
 import uvicorn
 import os
+import asyncio
 from datetime import datetime
 from dotenv import load_dotenv
 
@@ -171,9 +172,20 @@ async def predict_match(home_team: str, away_team: str):
         home_team = home_team.replace("_", " ").replace("-", " ")
         away_team = away_team.replace("_", " ").replace("-", " ")
         
-        prediction = await match_predictor.predict(home_team, away_team)
+        # Add timeout to prevent hanging (20 seconds max)
+        prediction = await asyncio.wait_for(
+            match_predictor.predict(home_team, away_team),
+            timeout=20.0
+        )
         return prediction
+    except asyncio.TimeoutError:
+        print("Match prediction timed out")
+        raise HTTPException(
+            status_code=504,
+            detail="Prediction timed out. Please try again."
+        )
     except Exception as e:
+        print(f"Error in match prediction: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -234,10 +246,32 @@ async def get_team_players(team: str):
     """Get squad/players for a specific team"""
     try:
         team = team.replace("_", " ").replace("-", " ")
-        players = await data_fetcher.fetch_team_squad(team)
-        return players
+        
+        # Try database first (cached data)
+        cached_players = db.get_team_players(team)
+        if cached_players:
+            return cached_players
+        
+        # If not in cache, try API with timeout
+        try:
+            players = await asyncio.wait_for(
+                data_fetcher.fetch_team_squad(team),
+                timeout=10.0
+            )
+            if players:
+                # Cache the players
+                db.save_team_players(team, players)
+                return players
+        except asyncio.TimeoutError:
+            print(f"Timeout fetching players for {team} from API")
+        except Exception as e:
+            print(f"Error fetching players for {team} from API: {e}")
+        
+        # Return empty list if API fails (frontend will handle gracefully)
+        return []
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"Error in get_team_players: {e}")
+        return []
 
 
 @app.get("/api/health")
